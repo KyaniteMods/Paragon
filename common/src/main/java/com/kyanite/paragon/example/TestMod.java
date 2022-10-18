@@ -6,10 +6,10 @@ import com.kyanite.paragon.api.enums.ConfigType;
 
 public class TestMod {
     public void init() {
-        // Expandable registration system
+        // Class-based config system
         ConfigRegistry.register("testmod", new TestModConfig());
 
-        // Lightweight registration system
+        // Lightweight config system 
         ConfigHolder configHolder = new ConfigHolder("testmod", ConfigType.STANDARD,
             TestModConfig.isSus, TestModConfig.name, TestModConfig.sussiness);
     }
