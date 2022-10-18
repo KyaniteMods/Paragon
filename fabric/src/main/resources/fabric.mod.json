@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "paragon",
+  "version": "${version}",
+  "name": "Paragon",
+  "description": "Library for Kyanite mods",
+  "authors": [
+    "Kyanite"
+  ],
+  "contact": {
+    "website": "kyanitemods.dev"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.kyanite.paragon.fabric.ParagonFabric"
+    ]
+  },
+  "mixins": [
+    "paragon.mixins.json",
+    "paragon-common.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "minecraft": ">=1.19.2"
+  }
+}
