@@ -16,6 +16,9 @@
   "entrypoints": {
     "main": [
       "com.kyanite.paragon.fabric.ParagonFabric"
+    ],
+    "client": [
+      "com.kyanite.paragon.fabric.ParagonFabricClient"
     ]
   },
   "mixins": [

@@ -7,10 +7,13 @@ import com.google.gson.JsonParser;
 import com.kyanite.paragon.api.annotation.ModConfig;
 import com.kyanite.paragon.api.enums.ConfigType;
 import com.kyanite.paragon.platform.PlatformHelper;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.kyanite.paragon.api.ConfigUtils.getFilePath;
 
 public class ConfigHolder {
     private final String modId;
@@ -32,15 +35,16 @@ public class ConfigHolder {
         ConfigRegistry.HOLDERS.add(this);
     }
 
-    public File getFilePath() {
-        return new File(PlatformHelper.getConfigPath(), modId + (configType.equals(ConfigType.STANDARD) ? ".json" : ".toml"));
+    public List<ConfigOption> getConfigOptions() {
+        return configOptions;
     }
+
     public String getModId() {
         return modId;
     }
 
     public void init() throws IOException {
-        if(getFilePath().exists()) load(); else save();
+        if(getFilePath(this.modId).exists()) load(); else save();
     }
 
     public static String getPerfectJSON(String unformattedJSON) {
@@ -58,15 +62,18 @@ public class ConfigHolder {
 
             String jsonString = GSON.toJson(config);
 
-            try (FileWriter fileWriter = new FileWriter(getFilePath())) {
+            try (FileWriter fileWriter = new FileWriter(getFilePath(this.modId))) {
                 fileWriter.write(jsonString);
             }
         } else throw new RuntimeException("Legacy config-type is currently a work-in-progress.");
     }
 
+    public String getRaw() throws IOException {
+        return FileUtils.readFileToString(getFilePath(this.modId));
+    }
     public void load() throws IOException {
         if(configType.equals(ConfigType.STANDARD)) {
-            BufferedReader br = new BufferedReader(new FileReader(getFilePath()));
+            BufferedReader br = new BufferedReader(new FileReader(getFilePath(this.modId)));
             JsonObject json = new JsonParser().parse(br).getAsJsonObject();
 
             for (ConfigOption configOption : configOptions) {

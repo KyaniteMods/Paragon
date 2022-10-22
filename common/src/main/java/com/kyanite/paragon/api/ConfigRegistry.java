@@ -5,6 +5,7 @@ import com.kyanite.paragon.platform.PlatformHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ConfigRegistry {
     public static List<ConfigHolder> HOLDERS = new ArrayList<>();
@@ -16,5 +17,18 @@ public class ConfigRegistry {
         if(!PlatformHelper.isValidMod(modId)) throw new RuntimeException(modId + " is not a valid mod");
         ConfigHolder holder = new ConfigHolder(modId, config);
         HOLDERS.add(holder);
+    }
+
+    public static boolean isRegistered(String modId) {
+        Optional<ConfigHolder> holder = HOLDERS.stream().filter(configHolder -> configHolder.getModId() == modId).findFirst();
+        return holder.isPresent();
+    }
+
+    public static void unregister(String modId) {
+        Optional<ConfigHolder> holder = HOLDERS.stream().filter(configHolder -> configHolder.getModId() == modId).findFirst();
+        if(holder.isPresent())
+            HOLDERS.remove(holder);
+        else
+            throw new RuntimeException(modId + " is not registered");
     }
 }
