@@ -58,6 +58,16 @@ components.java {
     }
 }
 
+task renameJarForPublication(type: Zip, dependsOn: remapJar) {
+    from remapJar.archiveFile.map { zipTree(it) }
+    extension "jar"
+    metadataCharset "UTF-8"
+    destinationDirectory = base.libsDirectory
+    classifier project.name
+}
+
+assemble.dependsOn renameJarForPublication
+
 publishing {
     publications {
         mavenForge(MavenPublication) {
