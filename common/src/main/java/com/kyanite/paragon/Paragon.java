@@ -5,7 +5,6 @@ import com.kyanite.paragon.api.ConfigRegistry;
 import com.kyanite.paragon.example.TestMod;
 import com.kyanite.paragon.platform.PlatformHelper;
 import com.mojang.logging.LogUtils;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ public class Paragon {
             if(PlatformHelper.isValidMod(configHolder.getModId())) { // Already checked during config registration, but lets double check anyways
                 try {
                     configHolder.init();
-                } catch (IOException | ParseException e) {
+                } catch (IOException e) {
                     throw new RuntimeException("Unable to load " + configHolder.getModId() + " :: " + e);
                 }
             }else{

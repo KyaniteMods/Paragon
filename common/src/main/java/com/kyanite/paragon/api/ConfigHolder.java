@@ -2,14 +2,11 @@ package com.kyanite.paragon.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.annotation.ModConfig;
 import com.kyanite.paragon.api.enums.ConfigType;
 import com.kyanite.paragon.platform.PlatformHelper;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.Arrays;
@@ -42,7 +39,7 @@ public class ConfigHolder {
         return modId;
     }
 
-    public void init() throws IOException, ParseException {
+    public void init() throws IOException {
         if(getFilePath().exists()) load(); else save();
     }
 
@@ -51,35 +48,31 @@ public class ConfigHolder {
         return perfectJSON;
     }
 
-    public void save() {
-        if(configType.equals(ConfigType.STANDARD)) {
-            JSONObject jsonObject = new JSONObject();
+    public void save() throws IOException {
+        if (configType.equals(ConfigType.STANDARD)) {
+            JsonObject config = new JsonObject();
 
-            for(ConfigOption configOption : configOptions) {
-                jsonObject.put(configOption.getTitle(), configOption.value());
+            for (ConfigOption configOption : configOptions) {
+                config.add(configOption.getTitle(), GSON.toJsonTree(configOption.value()));
             }
 
-            try (FileWriter file = new FileWriter(getFilePath())) {
-                file.write(getPerfectJSON(jsonObject.toJSONString()));
-                file.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
+            String jsonString = GSON.toJson(config);
+
+            try (FileWriter fileWriter = new FileWriter(getFilePath())) {
+                fileWriter.write(jsonString);
             }
-        }else throw new RuntimeException("Legacy config-type is currently a work-in-progress.");
+        } else throw new RuntimeException("Legacy config-type is currently a work-in-progress.");
     }
 
-    public void load() throws IOException, ParseException {
+    public void load() throws IOException {
         if(configType.equals(ConfigType.STANDARD)) {
-            JSONParser parser = new JSONParser();
+            BufferedReader br = new BufferedReader(new FileReader(getFilePath()));
+            JsonObject json = new JsonParser().parse(br).getAsJsonObject();
 
-            try (Reader reader = new FileReader(getFilePath())) {
-                JSONObject jsonObject = (JSONObject) parser.parse(reader);
-                for (ConfigOption configOption : configOptions) {
-                    Object title = jsonObject.get(configOption.getTitle());
-                    if(title != null) {
-                        configOption.setValue(title);
-                    }
-                    Paragon.LOGGER.info(String.valueOf(title));
+            for (ConfigOption configOption : configOptions) {
+                Object title = json.get(configOption.getTitle());
+                if(title != null) {
+                    configOption.setValue(title);
                 }
             }
         }else throw new RuntimeException("Legacy config-type is currently a work-in-progress.");
