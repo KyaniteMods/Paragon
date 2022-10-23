@@ -18,6 +18,8 @@
 
 [Example usage](https://github.com/KyaniteMods/Paragon/tree/master/common/src/main/java/com/kyanite/paragon/example)
 
+<a href="https://github.com/KyaniteMods/Paragon"><img src="https://github-readme-stats.vercel.app/api/pin/?username=KyaniteMods&repo=Paragon&theme=dark"></a>
+
 ## Installation
 ### Repository (add to repositories)
 ````gradle
