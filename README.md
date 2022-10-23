@@ -16,6 +16,8 @@
 - Super easy to use and setup
 - Modern and simple
 
+[Example usage](https://github.com/KyaniteMods/Paragon/tree/master/common/src/main/java/com/kyanite/paragon/example)
+
 ## Installation
 ### Repository (add to repositories)
 ````gradle
