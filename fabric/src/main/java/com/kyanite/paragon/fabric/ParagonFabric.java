@@ -2,7 +2,8 @@ package com.kyanite.paragon.fabric;
 
 import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.ConfigRegistry;
-import com.kyanite.paragon.api.annotation.ModConfig;
+import com.kyanite.paragon.api.enums.ConfigSide;
+import com.kyanite.paragon.api.interfaces.ModConfig;
 import com.kyanite.paragon.api.enums.ConfigHandshakeResult;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -27,7 +28,7 @@ public class ParagonFabric implements ModInitializer {
                 return;
             }
 
-            ConfigRegistry.HOLDERS.forEach((configHolder -> {
+            ConfigRegistry.HOLDERS.stream().filter((configHolder -> configHolder.configSide == ConfigSide.COMMON)).forEach((configHolder -> {
                 try {
                     Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getModId() + " to " + handler.player.getName().getString());
                     ServerPlayNetworking.send(handler.player, new ResourceLocation(Paragon.MOD_ID, "sync"),
@@ -35,7 +36,7 @@ public class ParagonFabric implements ModInitializer {
                                     .writeUtf(configHolder.getModId())
                                     .writeUtf(configHolder.getRaw()));
                 } catch (IOException e) {
-                    ConfigRegistry.unregister(configHolder.getModId());
+                    ConfigRegistry.unregister(configHolder.getModId(), configHolder.configSide);
                     Paragon.LOGGER.info("Unregistered" + configHolder.getModId() + " due to the config-file missing");
                 }
             }));

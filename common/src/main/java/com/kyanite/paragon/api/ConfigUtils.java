@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.kyanite.paragon.api.enums.ConfigSide;
 import com.kyanite.paragon.platform.PlatformHelper;
 import org.apache.commons.io.FileUtils;
 
@@ -96,7 +97,7 @@ public class ConfigUtils {
         return unwrapped;
     }
 
-    public static File getFilePath(String modId) {
-        return new File(PlatformHelper.getConfigPath(), modId + ".json");
+    public static File getFilePath(String modId, ConfigSide configSide) {
+        return new File(PlatformHelper.getConfigPath(), modId + (configSide == ConfigSide.CLIENT ? "-client" : "") + ".json");
     }
 }

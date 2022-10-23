@@ -2,8 +2,8 @@ package com.kyanite.paragon.api;
 
 import com.google.gson.*;
 import com.kyanite.paragon.Paragon;
-import com.kyanite.paragon.api.annotation.ModConfig;
-import com.kyanite.paragon.api.enums.ConfigType;
+import com.kyanite.paragon.api.interfaces.ModConfig;
+import com.kyanite.paragon.api.enums.ConfigSide;
 import com.kyanite.paragon.platform.PlatformHelper;
 import org.apache.commons.io.FileUtils;
 
@@ -24,23 +24,20 @@ public class ConfigHolder {
     private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private List<ConfigOption> configOptions;
-    private ConfigType configType;
+
+    public ConfigSide configSide;
     ConfigHolder(String modId, ModConfig configClass) {
         this.modId = modId;
-        this.configType = configClass.configType();
+        this.configSide = configClass.configSide();
         this.configOptions = configClass.configOptions();
     }
 
-    public ConfigHolder(String modId, ConfigType configType, ConfigOption... configOptions) {
+    public ConfigHolder(String modId, ConfigSide configSide, ConfigOption... configOptions) {
         if(!PlatformHelper.isValidMod(modId)) throw new RuntimeException(modId + " is not a valid mod");
         this.modId = modId;
+        this.configSide = configSide;
         this.configOptions = Arrays.stream(configOptions).toList();
-        this.configType = configType;
         ConfigRegistry.HOLDERS.add(this);
-    }
-
-    public List<ConfigOption> getConfigOptions() {
-        return configOptions;
     }
 
     public String getModId() {
@@ -48,7 +45,7 @@ public class ConfigHolder {
     }
 
     public void init() throws IOException {
-        if(getFilePath(this.modId).exists()) {
+        if(getFilePath(this.modId, this.configSide).exists()) {
             load();
         }else{
             save();
@@ -56,56 +53,52 @@ public class ConfigHolder {
     }
 
     public void save() throws IOException {
-        if (configType.equals(ConfigType.STANDARD)) {
-            JsonObject config = new JsonObject();
+        JsonObject config = new JsonObject();
 
-            for (ConfigOption configOption : this.configOptions) {
-                config.add(configOption.getTitle(), GSON.toJsonTree(configOption.getDefaultValue()));
-            }
+        for (ConfigOption configOption : this.configOptions) {
+            config.add(configOption.getTitle(), GSON.toJsonTree(configOption.getDefaultValue()));
+        }
 
-            String jsonString = GSON.toJson(config);
+        String jsonString = GSON.toJson(config);
 
-            try (FileWriter fileWriter = new FileWriter(getFilePath(this.getModId()))) {
-                fileWriter.write(jsonString);
-            }
+        try (FileWriter fileWriter = new FileWriter(getFilePath(this.getModId(), this.configSide))) {
+            fileWriter.write(jsonString);
+        }
 
-            Paragon.LOGGER.info("Saved config file for " + this.getModId() + " at " + getFilePath(this.getModId()));
+        Paragon.LOGGER.info("Saved config file for " + this.getModId() + " at " + getFilePath(this.getModId(), this.configSide));
 
-            load();
-        } else throw new RuntimeException("Legacy config-type is currently a work-in-progress.");
+        load();
     }
 
     public String getRaw() throws IOException {
-        return FileUtils.readFileToString(getFilePath(this.modId));
+        return FileUtils.readFileToString(getFilePath(this.modId, this.configSide));
     }
 
     public void load() throws IOException {
-        if(configType.equals(ConfigType.STANDARD)) {
-            BufferedReader br = new BufferedReader(new FileReader(getFilePath(this.modId)));
-            JsonObject json = new JsonParser().parse(br).getAsJsonObject();
+        BufferedReader br = new BufferedReader(new FileReader(getFilePath(this.modId, this.configSide)));
+        JsonObject json = new JsonParser().parse(br).getAsJsonObject();
 
-            this.configOptions.forEach((configOption -> {
-                Optional<Map.Entry<String, JsonElement>> entry = json.entrySet().stream().filter((set -> set.getKey().equals(configOption.getTitle()))).findFirst();
-                if(entry.isPresent()) {
-                    Object unwrappedObject = unwrap(entry.get().getValue().getAsJsonPrimitive());
-                    if(unwrappedObject != null) {
-                        configOption.setValue(unwrappedObject);
-                        Paragon.LOGGER.info("Set value of " + entry.get().getKey() + " for " + this.getModId());
-                    }else{
-                        configOption.setValue(configOption.getDefaultValue());
-                        throw new RuntimeException("Config option is not supported and was not loaded properly");
-                    }
-                }else{
-                    Paragon.LOGGER.error(this.getModId() + " is missing a property : " + configOption.getTitle() + " - Recovery started");
-                    getFilePath(this.getModId()).delete();
-                    try {
-                        save();
-                    } catch (IOException e) {
-                        throw new RuntimeException("Recovery failed for " + this.getModId() + " due to " + e);
-                    }
-                    return;
+        this.configOptions.forEach((configOption -> {
+            Optional<Map.Entry<String, JsonElement>> entry = json.entrySet().stream().filter((set -> set.getKey().equals(configOption.getTitle()))).findFirst();
+            if (entry.isPresent()) {
+                Object unwrappedObject = unwrap(entry.get().getValue().getAsJsonPrimitive());
+                if (unwrappedObject != null) {
+                    configOption.setValue(unwrappedObject);
+                    Paragon.LOGGER.info("Set value of " + entry.get().getKey() + " for " + this.getModId());
+                } else {
+                    configOption.setValue(configOption.getDefaultValue());
+                    throw new RuntimeException("Config option is not supported and was not loaded properly");
                 }
-            }));
-        }else throw new RuntimeException("Legacy config-type is currently a work-in-progress.");
+            } else {
+                Paragon.LOGGER.error(this.getModId() + " is missing a property : " + configOption.getTitle() + " - Recovery started");
+                getFilePath(this.getModId(), this.configSide).delete();
+                try {
+                    save();
+                } catch (IOException e) {
+                    throw new RuntimeException("Recovery failed for " + this.getModId() + " due to " + e);
+                }
+                return;
+            }
+        }));
     }
 }

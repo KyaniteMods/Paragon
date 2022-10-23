@@ -1,7 +1,8 @@
 package com.kyanite.paragon.api;
 
 import com.kyanite.paragon.Paragon;
-import com.kyanite.paragon.api.annotation.ModConfig;
+import com.kyanite.paragon.api.enums.ConfigSide;
+import com.kyanite.paragon.api.interfaces.ModConfig;
 import com.kyanite.paragon.platform.PlatformHelper;
 
 import java.io.IOException;
@@ -17,6 +18,8 @@ public class ConfigRegistry {
      */
     public static void register(String modId, ModConfig config) {
         if(!PlatformHelper.isValidMod(modId)) throw new RuntimeException(modId + " is not a valid mod");
+        if(isRegistered(modId, config.configSide())) throw new RuntimeException(modId + " is already registered!");
+
         ConfigHolder holder = new ConfigHolder(modId, config);
         HOLDERS.add(holder);
 
@@ -28,13 +31,13 @@ public class ConfigRegistry {
         }
     }
 
-    public static boolean isRegistered(String modId) {
-        Optional<ConfigHolder> holder = HOLDERS.stream().filter(configHolder -> configHolder.getModId() == modId).findFirst();
+    public static boolean isRegistered(String modId, ConfigSide configSide) {
+        Optional<ConfigHolder> holder = HOLDERS.stream().filter(configHolder -> configHolder.getModId() == modId && configHolder.configSide == configSide).findFirst();
         return holder.isPresent();
     }
 
-    public static void unregister(String modId) {
-        Optional<ConfigHolder> holder = HOLDERS.stream().filter(configHolder -> configHolder.getModId() == modId).findFirst();
+    public static void unregister(String modId, ConfigSide configSide) {
+        Optional<ConfigHolder> holder = HOLDERS.stream().filter(configHolder -> configHolder.getModId() == modId && configHolder.configSide == configSide).findFirst();
         if(holder.isPresent())
             HOLDERS.remove(holder);
         else

@@ -4,6 +4,7 @@ import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.ConfigRegistry;
 import com.kyanite.paragon.api.ConfigUtils;
 import com.kyanite.paragon.api.enums.ConfigHandshakeResult;
+import com.kyanite.paragon.api.enums.ConfigSide;
 import com.kyanite.paragon.forge.ParagonPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
@@ -37,15 +38,15 @@ public class SyncPacket {
             Paragon.LOGGER.info("Received config handshake on client for " + modId);
 
             try {
-                String rawJson2 = ConfigUtils.getRawJson(ConfigUtils.getFilePath(modId));;
+                String rawJson2 = ConfigUtils.getRawJson(ConfigUtils.getFilePath(modId, ConfigSide.COMMON));;
                 if(!rawJson.equals(rawJson2)) {
                     ParagonPacketHandler.sendToServer(new HandshakePacket(ConfigHandshakeResult.FAIL));
                 }else{
                     ParagonPacketHandler.sendToServer(new HandshakePacket(ConfigHandshakeResult.SUCCESS));
                 }
             } catch (FileNotFoundException e) {
-                if(ConfigRegistry.isRegistered(modId)) {
-                    ConfigRegistry.unregister(modId);
+                if(ConfigRegistry.isRegistered(modId, ConfigSide.COMMON)) {
+                    ConfigRegistry.unregister(modId, ConfigSide.COMMON);
                     Paragon.LOGGER.info("Unregistered" + modId + " due to the config-file missing");
                 }
 

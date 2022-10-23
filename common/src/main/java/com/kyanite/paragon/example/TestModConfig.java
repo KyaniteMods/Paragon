@@ -1,7 +1,7 @@
 package com.kyanite.paragon.example;
 
-import com.kyanite.paragon.api.annotation.ModConfig;
 import com.kyanite.paragon.api.ConfigOption;
+import com.kyanite.paragon.api.interfaces.ModConfig;
 
 import java.util.List;
 

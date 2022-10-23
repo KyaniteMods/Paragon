@@ -2,6 +2,7 @@ package com.kyanite.paragon.forge;
 
 import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.ConfigRegistry;
+import com.kyanite.paragon.api.enums.ConfigSide;
 import com.kyanite.paragon.forge.packet.SyncPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,12 +27,12 @@ public class ParagonForge {
         public static void loginEvent(final PlayerEvent.PlayerLoggedInEvent event) {
             if(event.getEntity().getLevel().isClientSide()) return;
 
-            ConfigRegistry.HOLDERS.forEach((configHolder -> {
+            ConfigRegistry.HOLDERS.stream().filter((configHolder -> configHolder.configSide == ConfigSide.COMMON)).forEach((configHolder -> {
                 try {
                     Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getModId() + " to " + event.getEntity().getName().getString());
                     ParagonPacketHandler.sendToPlayer(new SyncPacket(configHolder.getModId(), configHolder.getRaw()), (ServerPlayer) event.getEntity());
                 } catch (IOException e) {
-                    ConfigRegistry.unregister(configHolder.getModId());
+                    ConfigRegistry.unregister(configHolder.getModId(), ConfigSide.COMMON);
                     Paragon.LOGGER.info("Unregistered" + configHolder.getModId() + " due to the config-file missing");
                 }
             }));
