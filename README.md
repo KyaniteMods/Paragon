@@ -33,7 +33,7 @@ maven {
 ````
 ### Fabric (remove include if you dont want paragon packed into your jar)
 ````gradle
-include modImplementation("maven.modrinth:paragon:forge-1.0.0b-1.19.2")
+include modImplementation("maven.modrinth:paragon:fabric-1.0.0b-1.19.2")
 ````
 ### Forge
 ````gradle
