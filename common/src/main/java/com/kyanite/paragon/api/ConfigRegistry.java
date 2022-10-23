@@ -1,8 +1,10 @@
 package com.kyanite.paragon.api;
 
+import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.annotation.ModConfig;
 import com.kyanite.paragon.platform.PlatformHelper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,13 @@ public class ConfigRegistry {
         if(!PlatformHelper.isValidMod(modId)) throw new RuntimeException(modId + " is not a valid mod");
         ConfigHolder holder = new ConfigHolder(modId, config);
         HOLDERS.add(holder);
+
+        Paragon.LOGGER.info("Registered " + modId);
+        try {
+            holder.init();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load " + holder.getModId() + " :: " + e);
+        }
     }
 
     public static boolean isRegistered(String modId) {

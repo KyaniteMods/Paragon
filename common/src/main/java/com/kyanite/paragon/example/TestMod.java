@@ -8,8 +8,8 @@ public class TestMod {
         ConfigRegistry.register("paragon", new TestModConfig());
 
         // Lightweight config system
-   //     ConfigHolder configHolder = new ConfigHolder("testmod", ConfigType.STANDARD,
-     //       TestModConfig.isSus, TestModConfig.name, TestModConfig.sussiness);
+        //ConfigHolder configHolder = new ConfigHolder("testmod", ConfigType.STANDARD,
+        //    TestModConfig.isSus, TestModConfig.name, TestModConfig.sussiness);
 
     }
 }
