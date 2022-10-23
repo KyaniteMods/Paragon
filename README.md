@@ -15,3 +15,27 @@
 - Lightweight and modular, Paragon itself is just a config library for other mods to use. It does not add any in-game content (such as menus, GUIs, etc)
 - Super easy to use and setup
 - Modern and simple
+
+## Installation
+### Repository (add to repositories)
+````gradle
+maven {
+    name = "Modrinth"
+    url = "https://api.modrinth.com/maven"
+    content {
+        includeGroup "maven.modrinth"
+    }
+}
+````
+### Fabric (remove include if you dont want paragon packed into your jar)
+````gradle
+include modImplementation("maven.modrinth:paragon:forge-1.0.0b-1.19.2")
+````
+### Forge
+````gradle
+implementation fg.deobf('maven.modrinth:paragon:forge-1.0.0b-1.19.2')
+````
+#### Common (for Architectury projects)
+````gradle
+modImplementation("maven.modrinth:paragon:common-1.0.0b-1.19.2")
+````
