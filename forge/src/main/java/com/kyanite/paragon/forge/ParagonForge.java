@@ -5,7 +5,6 @@ import com.kyanite.paragon.api.ConfigRegistry;
 import com.kyanite.paragon.api.enums.ConfigSide;
 import com.kyanite.paragon.forge.packet.SyncPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,10 +20,10 @@ public class ParagonForge {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @Mod.EventBusSubscriber(modid = Paragon.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.DEDICATED_SERVER)
+    @Mod.EventBusSubscriber(modid = Paragon.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ParagonServer {
         @SubscribeEvent
-        public static void loginEvent(final PlayerEvent.PlayerLoggedInEvent event) {
+        public static void loginEvent(PlayerEvent.PlayerLoggedInEvent event) {
             if(event.getEntity().getLevel().isClientSide()) return;
 
             ConfigRegistry.HOLDERS.stream().filter((configHolder -> configHolder.configSide == ConfigSide.COMMON)).forEach((configHolder -> {
