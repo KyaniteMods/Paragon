@@ -11,10 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.kyanite.paragon.api.ConfigUtils.getFilePath;
 import static com.kyanite.paragon.api.ConfigUtils.unwrap;
@@ -81,7 +78,16 @@ public class ConfigHolder {
         this.configOptions.forEach((configOption -> {
             Optional<Map.Entry<String, JsonElement>> entry = json.entrySet().stream().filter((set -> set.getKey().equals(configOption.getTitle()))).findFirst();
             if (entry.isPresent()) {
-                Object unwrappedObject = unwrap(entry.get().getValue().getAsJsonPrimitive());
+                Object unwrappedObject;
+                if(entry.get().getValue().isJsonPrimitive()) {
+                    unwrappedObject = unwrap(entry.get().getValue().getAsJsonPrimitive());
+                }else{
+                    List<Object> list = new ArrayList<>();
+                    for(JsonElement jsonPrimitive : entry.get().getValue().getAsJsonArray()) {
+                        if(jsonPrimitive.isJsonPrimitive()) list.add(unwrap(jsonPrimitive));
+                    }
+                    unwrappedObject = list.toArray();
+                }
                 if (unwrappedObject != null) {
                     configOption.setValue(unwrappedObject);
                     Paragon.LOGGER.info("Set value of " + entry.get().getKey() + " for " + this.getModId());
