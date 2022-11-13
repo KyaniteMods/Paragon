@@ -6,10 +6,5 @@ public class TestMod {
     public void init() {
         // Class-based config system
         ConfigRegistry.register(new TestModConfig());
-
-        // Lightweight config system
-        //ConfigHolder configHolder = new ConfigHolder("testmod",
-        //    TestModConfig.isSus, TestModConfig.name, TestModConfig.sussiness);
-
     }
 }

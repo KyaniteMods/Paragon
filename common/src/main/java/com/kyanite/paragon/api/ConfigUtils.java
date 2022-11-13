@@ -12,7 +12,7 @@ public class ConfigUtils {
         return FileUtils.readFileToString(path);
     }
 
-    public static File getFilePath(String modId, ConfigSide configSide) {
-        return new File(PlatformHelper.getConfigPath(), modId + (configSide == ConfigSide.CLIENT ? "-client" : "") + ".json");
+    public static File getFilePath(String modId, ConfigSide configSide, String suffix) {
+        return new File(PlatformHelper.getConfigPath(), modId + (configSide == ConfigSide.CLIENT ? "-client" : "") + suffix);
     }
 }

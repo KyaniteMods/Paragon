@@ -3,7 +3,7 @@ package com.kyanite.paragon.fabric;
 import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.ConfigRegistry;
 import com.kyanite.paragon.api.enums.ConfigSide;
-import com.kyanite.paragon.api.interfaces.ModConfig;
+import com.kyanite.paragon.api.interfaces.configtypes.JSONModConfig;
 import com.kyanite.paragon.api.enums.ConfigHandshakeResult;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -34,7 +34,8 @@ public class ParagonFabric implements ModInitializer {
                     ServerPlayNetworking.send(handler.player, new ResourceLocation(Paragon.MOD_ID, "sync"),
                             PacketByteBufs.create()
                                     .writeUtf(configHolder.getModId())
-                                    .writeUtf(configHolder.getRawJSON()));
+                                    .writeUtf(configHolder.getRaw())
+                                    .writeUtf(configHolder.getSuffix()));
                 } catch (IOException e) {
                     ConfigRegistry.unregister(configHolder.getModId(), configHolder.configSide());
                     Paragon.LOGGER.info("Unregistered" + configHolder.getModId() + " due to the config-file missing");
@@ -68,7 +69,7 @@ public class ParagonFabric implements ModInitializer {
     }
 
     public void search() {
-        FabricLoader.getInstance().getEntrypointContainers("config", ModConfig.class).forEach(entrypoint -> {
+        FabricLoader.getInstance().getEntrypointContainers("config", JSONModConfig.class).forEach(entrypoint -> {
             ConfigRegistry.register(entrypoint.getEntrypoint());
         });
     }

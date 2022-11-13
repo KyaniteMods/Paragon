@@ -20,11 +20,12 @@ public class ParagonFabricClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(new ResourceLocation(Paragon.MOD_ID, "sync"),  (client, handler, buf, responseSender) -> {
             String id = buf.readUtf();
             String rawJson = buf.readUtf();
+            String suffix = buf.readUtf();
             client.execute(() -> {
                 Paragon.LOGGER.info("Received config handshake on client for " + id);
 
                 try {
-                    String rawJson2 = ConfigUtils.getRawJson(ConfigUtils.getFilePath(id, ConfigSide.COMMON));;
+                    String rawJson2 = ConfigUtils.getRawJson(ConfigUtils.getFilePath(id, ConfigSide.COMMON, suffix));;
                     if(!rawJson.equals(rawJson2)) {
                         responseSender.sendPacket(new ResourceLocation(Paragon.MOD_ID, "handshake"), PacketByteBufs.create().writeEnum(ConfigHandshakeResult.FAIL));
                     }else{

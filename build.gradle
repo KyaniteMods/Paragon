@@ -32,6 +32,11 @@ allprojects {
     version = rootProject.mod_version
     group = rootProject.maven_group
 
+    dependencies {
+        implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+        implementation 'org.yaml:snakeyaml:1.27'
+    }
+
     repositories {
         mavenCentral()
     }
