@@ -5,7 +5,7 @@ import com.kyanite.paragon.api.ConfigRegistry;
 public class TestMod {
     public void init() {
         // Class-based config system
-        ConfigRegistry.register("paragon", new TestModConfig());
+        ConfigRegistry.register(new TestModConfig());
 
         // Lightweight config system
         //ConfigHolder configHolder = new ConfigHolder("testmod",
