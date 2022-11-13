@@ -38,7 +38,7 @@ public interface JSONModConfig extends BaseModConfig {
         JsonObject json = new JsonParser().parse(br).getAsJsonObject();
         this.configOptions().forEach((configOption -> {
             JsonElement element = json.get(configOption.getTitle());
-            if(element.isJsonNull() || element == null) {
+            if(element == null) {
                 getFilePath(getModId(), configSide(), getSuffix()).delete();
                 try {
                     save();
@@ -47,7 +47,7 @@ public interface JSONModConfig extends BaseModConfig {
                 }
                 return;
             }
-            configOption.setValue(gson().fromJson(element, configOption.getClass()));
+            configOption.setValue(gson().fromJson(element, configOption.getValueClass()));
         }));
     }
 
