@@ -17,19 +17,21 @@ import java.util.function.Supplier;
 public class SyncPacket {
     public final String modId;
     public final String rawJson;
-
-    public SyncPacket(String modId, String rawJson) {
+    public final String suffix;
+    public SyncPacket(String modId, String rawJson, String suffix) {
         this.modId = modId;
         this.rawJson = rawJson;
+        this.suffix = suffix;
     }
 
     public SyncPacket(FriendlyByteBuf buffer) {
-        this(buffer.readUtf(), buffer.readUtf());
+        this(buffer.readUtf(), buffer.readUtf(), buffer.readUtf());
     }
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeUtf(this.modId);
         buffer.writeUtf(this.rawJson);
+        buffer.writeUtf(this.suffix);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> ctx) {
@@ -38,7 +40,7 @@ public class SyncPacket {
             Paragon.LOGGER.info("Received config handshake on client for " + modId);
 
             try {
-                String rawJson2 = ConfigUtils.getRawJson(ConfigUtils.getFilePath(modId, ConfigSide.COMMON));;
+                String rawJson2 = ConfigUtils.getRawJson(ConfigUtils.getFilePath(modId, ConfigSide.COMMON, suffix));;
                 if(!rawJson.equals(rawJson2)) {
                     ParagonPacketHandler.sendToServer(new HandshakePacket(ConfigHandshakeResult.FAIL));
                 }else{

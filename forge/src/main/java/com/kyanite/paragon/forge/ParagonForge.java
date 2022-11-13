@@ -25,10 +25,10 @@ public class ParagonForge {
     public static class ParagonServer {
         @SubscribeEvent
         public static void loginEvent(PlayerEvent.PlayerLoggedInEvent event) {
-            ConfigRegistry.HOLDERS.stream().filter((configHolder -> configHolder.configSide == ConfigSide.COMMON)).forEach((configHolder -> {
+            ConfigRegistry.CONFIGS.stream().filter((configHolder -> configHolder.configSide() == ConfigSide.COMMON)).forEach((configHolder -> {
                 try {
                     Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getModId() + " to " + event.getEntity().getName().getString());
-                    ParagonPacketHandler.sendToPlayer(new SyncPacket(configHolder.getModId(), configHolder.getRaw()), (ServerPlayer) event.getEntity());
+                    ParagonPacketHandler.sendToPlayer(new SyncPacket(configHolder.getModId(), configHolder.getRaw(), configHolder.getSuffix()), (ServerPlayer) event.getEntity());
                 } catch (IOException e) {
                     ConfigRegistry.unregister(configHolder.getModId(), ConfigSide.COMMON);
                     Paragon.LOGGER.info("Unregistered" + configHolder.getModId() + " due to the config-file missing");

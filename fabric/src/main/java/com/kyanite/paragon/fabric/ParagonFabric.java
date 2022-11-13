@@ -3,7 +3,7 @@ package com.kyanite.paragon.fabric;
 import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.ConfigRegistry;
 import com.kyanite.paragon.api.enums.ConfigSide;
-import com.kyanite.paragon.api.interfaces.ModConfig;
+import com.kyanite.paragon.api.interfaces.configtypes.JSONModConfig;
 import com.kyanite.paragon.api.enums.ConfigHandshakeResult;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -28,15 +28,16 @@ public class ParagonFabric implements ModInitializer {
                 return;
             }
 
-            ConfigRegistry.HOLDERS.stream().filter((configHolder -> configHolder.configSide == ConfigSide.COMMON)).forEach((configHolder -> {
+            ConfigRegistry.CONFIGS.stream().filter((configHolder -> configHolder.configSide() == ConfigSide.COMMON)).forEach((configHolder -> {
                 try {
                     Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getModId() + " to " + handler.player.getName().getString());
                     ServerPlayNetworking.send(handler.player, new ResourceLocation(Paragon.MOD_ID, "sync"),
                             PacketByteBufs.create()
                                     .writeUtf(configHolder.getModId())
-                                    .writeUtf(configHolder.getRaw()));
+                                    .writeUtf(configHolder.getRaw())
+                                    .writeUtf(configHolder.getSuffix()));
                 } catch (IOException e) {
-                    ConfigRegistry.unregister(configHolder.getModId(), configHolder.configSide);
+                    ConfigRegistry.unregister(configHolder.getModId(), configHolder.configSide());
                     Paragon.LOGGER.info("Unregistered" + configHolder.getModId() + " due to the config-file missing");
                 }
             }));
@@ -68,8 +69,8 @@ public class ParagonFabric implements ModInitializer {
     }
 
     public void search() {
-        FabricLoader.getInstance().getEntrypointContainers("config", ModConfig.class).forEach(entrypoint -> {
-            ConfigRegistry.register(entrypoint.getProvider().getMetadata().getId(), entrypoint.getEntrypoint());
+        FabricLoader.getInstance().getEntrypointContainers("config", JSONModConfig.class).forEach(entrypoint -> {
+            ConfigRegistry.register(entrypoint.getEntrypoint());
         });
     }
 }

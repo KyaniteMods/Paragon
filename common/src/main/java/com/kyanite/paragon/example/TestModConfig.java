@@ -1,17 +1,15 @@
 package com.kyanite.paragon.example;
 
 import com.kyanite.paragon.api.ConfigOption;
-import com.kyanite.paragon.api.interfaces.ModConfig;
+import com.kyanite.paragon.api.interfaces.configtypes.JSONModConfig;
 
-import java.util.List;
-
-public class TestModConfig implements ModConfig {
-    public static final ConfigOption<String[]> name = new ConfigOption<>("name", new String[] { "ace", "balls" });
-    public static final ConfigOption<Boolean> isSus = new ConfigOption<>("sus", true);
-    public static final ConfigOption<Double> sussiness = new ConfigOption<>("sussiness", 21.75d);
+public class TestModConfig implements JSONModConfig {
+    public static final ConfigOption<String[]> NAME = new ConfigOption<>("name", new String[] { "ace", "balls" });
+    public static final ConfigOption<Boolean> SUS = new ConfigOption<>("sus", true);
+    public static final ConfigOption<Float> IMPOSTOR_CHANCE = new ConfigOption<>("impostor_chance", 100f);
 
     @Override
-    public List<ConfigOption> configOptions() {
-        return List.of(name, isSus, sussiness);
+    public String getModId() {
+        return "paragon";
     }
 }
