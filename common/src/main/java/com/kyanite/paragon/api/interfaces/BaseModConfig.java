@@ -1,5 +1,6 @@
 package com.kyanite.paragon.api.interfaces;
 
+import com.kyanite.paragon.api.ConfigGroup;
 import com.kyanite.paragon.api.ConfigOption;
 import com.kyanite.paragon.api.enums.ConfigSide;
 import org.apache.commons.io.FileUtils;
@@ -31,6 +32,22 @@ public interface BaseModConfig {
             }
         }
         return configOptions;
+    }
+
+    default List<ConfigGroup> configGroups() {
+        List<ConfigGroup> configGroups = new ArrayList<>();
+        for (Field field : this.getClass().getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers())) {
+                if(ConfigGroup.class.isAssignableFrom(field.getType())) {
+                    try {
+                        configGroups.add((ConfigGroup) field.get(null));
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return configGroups;
     }
 
     default public ConfigSide configSide() {

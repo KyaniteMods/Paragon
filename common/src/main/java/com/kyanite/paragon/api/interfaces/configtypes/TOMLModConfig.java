@@ -1,5 +1,6 @@
 package com.kyanite.paragon.api.interfaces.configtypes;
 
+import com.kyanite.paragon.api.ConfigGroup;
 import com.kyanite.paragon.api.ConfigOption;
 import com.kyanite.paragon.api.interfaces.BaseModConfig;
 import com.moandjiezana.toml.Toml;
@@ -40,7 +41,14 @@ public interface TOMLModConfig extends BaseModConfig {
     default void save() throws IOException {
         TomlWriter tomlWriter = new TomlWriter();
         Map<String, Object> map = new HashMap<>();
-        for(ConfigOption configOption : this.configOptions()) map.put(configOption.getTitle(), configOption.getDefaultValue());
+        for(ConfigOption configOption : this.configOptions().stream().filter(configOption -> !configOption.hasParent()).toList()) map.put(configOption.getTitle(), configOption.get());
+        for(ConfigGroup configGroup : this.configGroups()) {
+            Map<String, Object> options = new HashMap<>();
+            for(ConfigOption configOption : configGroup.getConfigOptions()) {
+                options.put(configOption.getTitle(), configOption.get());
+            }
+            map.put(configGroup.getTitle(), options);
+        }
         tomlWriter.write(map, getFilePath(this.getModId(), this.configSide(), this.getSuffix()));
     }
 
