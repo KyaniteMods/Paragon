@@ -7,14 +7,11 @@ import java.util.function.Supplier;
 
 public class ConfigOption<T extends Object> implements Supplier<T> {
     private final String title;
-    /**
-     * Used in Epitome for tooltips
-     */
-    private String description = "";
     private final T defaultValue;
     private Optional<T> value;
     private Class<?> tClass;
     @Nullable private ConfigGroup configGroup;
+    private String description = "";
 
     public ConfigOption(String title, T defaultValue) {
         this.title = title;
@@ -23,21 +20,13 @@ public class ConfigOption<T extends Object> implements Supplier<T> {
         this.value = Optional.of(defaultValue);
     }
 
-    public ConfigOption(String title, String description, T defaultValue) {
-        this.title = title;
-        this.defaultValue = defaultValue;
-        this.tClass = defaultValue.getClass();
-        this.description = description;
-        this.value = Optional.of(defaultValue);
-    }
-
+    public void setDescription(String description) { this.description = description; }
     public boolean hasParent() { return this.configGroup != null; }
     public void setConfigGroup(ConfigGroup group) { this.configGroup = group; }
     public ConfigGroup getConfigGroup() { return this.configGroup; }
     public void setValue(T value) {
         this.value = Optional.ofNullable(value);
     }
-    public String getDescription() { return description; }
     public String getTitle() {
         return title;
     }

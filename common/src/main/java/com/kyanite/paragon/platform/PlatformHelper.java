@@ -7,6 +7,12 @@ public class PlatformHelper {
     public static boolean isValidMod(String modId) {
         throw new AssertionError();
     }
+
+    @ExpectPlatform
+    public static boolean isOnServer() {
+        throw new AssertionError();
+    }
+
     @ExpectPlatform
     public static String getConfigPath() {
         throw new AssertionError();
