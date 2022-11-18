@@ -16,6 +16,7 @@ public class ConfigHolder {
     private final String modId;
     private final Config config;
     private List<ConfigOption> configOptions;
+    private List<ConfigGroup> configGroups;
 
     public ConfigHolder(String modId, Config config) {
         this.modId = modId;
@@ -23,6 +24,7 @@ public class ConfigHolder {
     }
 
     public void init() {
+        this.detectConfigGroups();
         this.detectConfigOptions();
 
         try {
@@ -49,11 +51,31 @@ public class ConfigHolder {
         }
         this.configOptions = configOptions;
     }
+
+    private void detectConfigGroups() {
+        List<ConfigGroup> configGroups = new ArrayList<>();
+        for (Field field : this.config.getClass().getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers())) {
+                if(ConfigGroup.class.isAssignableFrom(field.getType())) {
+                    try {
+                        ConfigGroup configGroup = (ConfigGroup) field.get(null);
+                        if(field.isAnnotationPresent(Description.class)) configGroup.setDescription(field.getAnnotation(Description.class).value());
+                        configGroups.add(configGroup);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        this.configGroups = configGroups;
+    }
+
     public String getModId() {return this.modId;}
 
     public Config getConfig() {return this.config;}
 
     public List<ConfigOption> getConfigOptions() {return this.configOptions;}
+    public List<ConfigGroup> getConfigGroups() {return this.configGroups;}
 
     public final String getRaw() throws IOException { return FileUtils.readFileToString(ConfigManager.getFilePath(this.getModId(), this.config.configSide(), this.config.getSerializer().getSuffix()));}
     public File getFile() {return ConfigManager.getFilePath(this.modId, this.config.configSide(), this.config.getSerializer().getSuffix());}

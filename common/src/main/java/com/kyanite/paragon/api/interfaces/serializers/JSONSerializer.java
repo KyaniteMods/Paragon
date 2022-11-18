@@ -4,12 +4,15 @@ import com.google.gson.*;
 import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.ConfigHolder;
 import com.kyanite.paragon.api.ConfigManager;
+import com.kyanite.paragon.api.ConfigOption;
 import com.kyanite.paragon.api.interfaces.Config;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JSONSerializer implements ConfigSerializer {
     private final Gson gson;
@@ -26,27 +29,58 @@ public class JSONSerializer implements ConfigSerializer {
         return ".json";
     }
 
+    private void setOptionsValue(ConfigOption configOption, JsonObject json) throws IOException {
+        JsonElement element = json.get(configOption.getTitle());
+        if(element == null || !element.isJsonObject()) {
+            save();
+            return;
+        } else configOption.setValue(gson.fromJson(element, configOption.getValueClass()));
+    }
     @Override
     public void load() throws IOException {
         BufferedReader reader = Files.newBufferedReader(this.configHolder.getFile().toPath());
-        JsonElement element = JsonParser.parseReader(reader);
-        if(element == null) {
-            Paragon.LOGGER.error("Unable to load config file because element was null");
-            return;
+        JsonElement jsonElement = JsonParser.parseReader(reader);
+        if(jsonElement != null && jsonElement.isJsonObject()) {
+            JsonObject json = jsonElement.getAsJsonObject();
+            this.configHolder.getConfigOptions().stream().filter(configOption -> !configOption.hasParent()).forEach(configOption -> {
+                try { setOptionsValue(configOption, json); } catch (IOException e) {
+                    Paragon.LOGGER.error("Unable to load " + configOption.getTitle() + " because of " + e);
+                }
+            });
+            this.configHolder.getConfigGroups().forEach(configGroup -> {
+                JsonElement element1 = json.get(configGroup.getTitle());
+                if(element1 == null) {
+                    try { save(); } catch (IOException e) {
+                        Paragon.LOGGER.error("Unable to load " + configGroup.getTitle() + " because of " + e);
+                    }
+                    return;
+                }
+
+                configGroup.getConfigOptions().forEach(configOption -> {
+                    try { setOptionsValue(configOption, json); } catch (IOException e) {
+                        Paragon.LOGGER.error("Unable to load " + configOption.getTitle() + " because of " + e);
+                    }
+                });
+            });
+        }else{
+            Paragon.LOGGER.warn("Reloading " + this.configHolder.getModId() + "'s config because there was an error while deserializing");
+            save();
         }
-        JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
-        this.configHolder.getConfigOptions().forEach(configOption -> {
-            configOption.setValue(this.gson.fromJson(json.get(configOption.getTitle()), configOption.getValueClass()));
-        });
     }
 
     @Override
     public void save() throws IOException {
         JsonObject config = new JsonObject();
         BufferedWriter writer = Files.newBufferedWriter(this.configHolder.getFile().toPath());
-        this.configHolder.getConfigOptions().forEach(configOption -> {
-            config.add(configOption.getTitle(), this.gson.toJsonTree(configOption.get()));
+
+        this.configHolder.getConfigOptions().stream().filter(configOption -> !configOption.hasParent()).forEach(configOption -> config.add(configOption.getTitle(), this.gson.toJsonTree(configOption.get())));
+
+        this.configHolder.getConfigGroups().forEach(configGroup -> {
+            Map<String, Object> options = new HashMap<>();
+            configGroup.getConfigOptions().forEach(configOption -> options.put(configOption.getTitle(), configOption.get()));
+            config.add(configGroup.getTitle(), gson.toJsonTree(options));
         });
+
         writer.write(gson.toJson(config));
         writer.close();
     }

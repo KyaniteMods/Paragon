@@ -16,6 +16,7 @@ public class ConfigGroup {
         }));
     }
 
+    public void setDescription(String description) { this.description = description; }
     public String getDescription() { return this.description; }
     public String getTitle() { return this.title; }
     public List<ConfigOption> getConfigOptions() { return this.configOptions; }

@@ -31,7 +31,7 @@ public class YAMLSerializer implements ConfigSerializer {
 
     @Override
     public String getSuffix() {
-        return ".toml";
+        return ".yaml";
     }
 
     private DumperOptions dumperOptions() {
@@ -58,7 +58,14 @@ public class YAMLSerializer implements ConfigSerializer {
         Yaml yamlWriter = new Yaml(dumperOptions());
         PrintWriter writer = new PrintWriter(ConfigManager.getFilePath(this.configHolder.getModId(), this.configuration.configSide(), this.getSuffix()));
         Map<String, Object> map = new HashMap<>();
-        for(ConfigOption configOption : this.configHolder.getConfigOptions().stream().filter(configOption -> !configOption.hasParent()).toList()) map.put(configOption.getTitle(), configOption.get());
+        this.configHolder.getConfigOptions().stream().filter(configOption -> !configOption.hasParent()).toList().forEach(configOption -> map.put(configOption.getTitle(), configOption.get()));
+        this.configHolder.getConfigGroups().forEach(configGroup -> {;
+            Map<String, Object> options = new HashMap<>();
+            configGroup.getConfigOptions().forEach(configOption -> {;
+                options.put(configOption.getTitle(), configOption.get());
+            });
+            map.put(configGroup.getTitle(), options);
+        });
         yamlWriter.dump(map, writer);
     }
 

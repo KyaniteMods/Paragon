@@ -50,14 +50,20 @@ public class TOMLSerializer implements ConfigSerializer {
                 .build();
 
         Map<String, Object> map = new HashMap<>();
-        for(ConfigOption configOption : this.configHolder.getConfigOptions().stream().filter(configOption -> !configOption.hasParent()).toList()) map.put(configOption.getTitle(), configOption.get());
+        this.configHolder.getConfigOptions().stream().filter(configOption -> !configOption.hasParent()).toList().forEach(configOption -> map.put(configOption.getTitle(), configOption.get()));
+        this.configHolder.getConfigGroups().forEach(configGroup -> {
+            Map<String, Object> options = new HashMap<>();
+            configGroup.getConfigOptions().forEach(configOption -> options.put(configOption.getTitle(), configOption.get()));
+            map.put(configGroup.getTitle(), options);
+        });
+
         tomlWriter.write(map, ConfigManager.getFilePath(this.configHolder.getModId(), this.configuration.configSide(), this.getSuffix()));
     }
 
     public static Builder builder(Config configuration) { return new Builder(configuration); }
 
     public static class Builder {
-        private Config configuration;
+        private final Config configuration;
         private int indentValues = 0, indentTables = 0, padArrayDelimitersBy = 0;
 
         public Builder indentValuesBy(int value) {

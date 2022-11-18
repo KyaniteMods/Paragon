@@ -21,6 +21,7 @@ public class ConfigOption<T extends Object> implements Supplier<T> {
     }
 
     public void setDescription(String description) { this.description = description; }
+    public String getDescription() { return this.description; }
     public boolean hasParent() { return this.configGroup != null; }
     public void setConfigGroup(ConfigGroup group) { this.configGroup = group; }
     public ConfigGroup getConfigGroup() { return this.configGroup; }
