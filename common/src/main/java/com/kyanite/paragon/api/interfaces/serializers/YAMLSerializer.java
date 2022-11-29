@@ -44,7 +44,7 @@ public class YAMLSerializer implements ConfigSerializer {
 
     @Override
     public void load() throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(ConfigManager.getFilePath(this.configHolder.getModId(), this.configuration.configSide(), this.getSuffix())));
+        BufferedReader br = new BufferedReader(new FileReader(ConfigManager.getFilePath(this.configHolder.getFileName(), this.configuration.configSide(), this.getSuffix())));
         Yaml yaml = new Yaml(dumperOptions()).load(br);
         Map<String, Object> data = yaml.load(br);
         data.entrySet().forEach((entry -> {
@@ -56,7 +56,7 @@ public class YAMLSerializer implements ConfigSerializer {
     @Override
     public void save() throws IOException {
         Yaml yamlWriter = new Yaml(dumperOptions());
-        PrintWriter writer = new PrintWriter(ConfigManager.getFilePath(this.configHolder.getModId(), this.configuration.configSide(), this.getSuffix()));
+        PrintWriter writer = new PrintWriter(ConfigManager.getFilePath(this.configHolder.getFileName(), this.configuration.configSide(), this.getSuffix()));
         Map<String, Object> map = new HashMap<>();
         this.configHolder.getConfigOptions().stream().filter(configOption -> !configOption.hasParent()).toList().forEach(configOption -> map.put(configOption.getTitle(), configOption.get()));
         this.configHolder.getConfigGroups().forEach(configGroup -> {;

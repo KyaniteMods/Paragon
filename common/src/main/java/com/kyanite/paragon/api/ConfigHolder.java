@@ -2,7 +2,6 @@ package com.kyanite.paragon.api;
 
 import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.interfaces.Config;
-import com.kyanite.paragon.api.interfaces.Description;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -15,12 +14,16 @@ import java.util.List;
 public class ConfigHolder {
     private final String modId;
     private final Config config;
+    private final String fileName;
     private List<ConfigOption> configOptions;
     private List<ConfigGroup> configGroups;
 
-    public ConfigHolder(String modId, Config config) {
+    public ConfigHolder(String modId, Config config, String fileName) {
         this.modId = modId;
         this.config = config;
+        if(fileName == null) { this.fileName = modId; return; }
+        this.fileName = fileName.isEmpty() || fileName.isBlank() || fileName == null ?
+                modId : fileName.toLowerCase();
     }
 
     public void init() {
@@ -41,7 +44,7 @@ public class ConfigHolder {
                 if(ConfigOption.class.isAssignableFrom(field.getType())) {
                     try {
                         ConfigOption configOption = (ConfigOption) field.get(null);
-                        if(field.isAnnotationPresent(Description.class)) configOption.setDescription(field.getAnnotation(Description.class).value());
+                        if(field.isAnnotationPresent(blue.endless.jankson.Comment.class)) configOption.setDescription(field.getAnnotation(blue.endless.jankson.Comment.class).value());
                         configOptions.add(configOption);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
@@ -59,7 +62,7 @@ public class ConfigHolder {
                 if(ConfigGroup.class.isAssignableFrom(field.getType())) {
                     try {
                         ConfigGroup configGroup = (ConfigGroup) field.get(null);
-                        if(field.isAnnotationPresent(Description.class)) configGroup.setDescription(field.getAnnotation(Description.class).value());
+                        if(field.isAnnotationPresent(blue.endless.jankson.Comment.class)) configGroup.setDescription(field.getAnnotation(blue.endless.jankson.Comment.class).value());
                         configGroups.add(configGroup);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
@@ -71,12 +74,12 @@ public class ConfigHolder {
     }
 
     public String getModId() {return this.modId;}
-
+    public String getFileName() {return this.fileName;}
     public Config getConfig() {return this.config;}
 
     public List<ConfigOption> getConfigOptions() {return this.configOptions;}
     public List<ConfigGroup> getConfigGroups() {return this.configGroups;}
 
-    public final String getRaw() throws IOException { return FileUtils.readFileToString(ConfigManager.getFilePath(this.getModId(), this.config.configSide(), this.config.getSerializer().getSuffix()));}
-    public File getFile() {return ConfigManager.getFilePath(this.modId, this.config.configSide(), this.config.getSerializer().getSuffix());}
+    public final String getRaw() throws IOException { return FileUtils.readFileToString(ConfigManager.getFilePath(this.getFileName(), this.config.configSide(), this.config.getSerializer().getSuffix()));}
+    public File getFile() {return ConfigManager.getFilePath(this.getFileName(), this.config.configSide(), this.config.getSerializer().getSuffix());}
 }

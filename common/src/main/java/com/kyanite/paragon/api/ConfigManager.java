@@ -22,7 +22,7 @@ public class ConfigManager {
         if(isRegistered(modId, config.configSide())) throw new RuntimeException(modId + " is already registered!");
         if(config.configSide() == ConfigSide.CLIENT && PlatformHelper.isOnServer()) throw new RuntimeException("Cannot register client config on server! (" + modId + ")");
 
-        ConfigHolder configHolder = new ConfigHolder(modId, config);
+        ConfigHolder configHolder = new ConfigHolder(modId, config, config.getFileName());
         CONFIGS.put(config, configHolder);
 
         Paragon.LOGGER.info("Registered " + modId);
@@ -41,9 +41,10 @@ public class ConfigManager {
         return FileUtils.readFileToString(path);
     }
 
-    public static File getFilePath(String modId, ConfigSide configSide, String suffix) {
-        return new File(PlatformHelper.getConfigPath(), modId + (configSide == ConfigSide.CLIENT ? "-client" : "") + suffix);
+    public static File getFilePath(String fileName, ConfigSide configSide, String suffix) {
+        return new File(PlatformHelper.getConfigPath(), fileName + (configSide == ConfigSide.CLIENT ? "-client" : "") + suffix);
     }
+
 
     public static Optional<Map.Entry<Config, ConfigHolder>> getConfigSet(String modId, ConfigSide configSide) {
         return CONFIGS.entrySet().stream().filter(configHolder -> configHolder.getValue().getModId() == modId && configHolder.getKey().configSide() == configSide).findFirst();

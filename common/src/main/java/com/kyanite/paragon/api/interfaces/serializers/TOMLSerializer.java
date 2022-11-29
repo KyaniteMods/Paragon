@@ -33,7 +33,7 @@ public class TOMLSerializer implements ConfigSerializer {
 
     @Override
     public void load() throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(ConfigManager.getFilePath(this.configHolder.getModId(), this.configuration.configSide(), this.getSuffix())));
+        BufferedReader br = new BufferedReader(new FileReader(ConfigManager.getFilePath(this.configHolder.getFileName(), this.configuration.configSide(), this.getSuffix())));
         Toml toml = new Toml().read(br);
         toml.entrySet().forEach((entry -> {
             Optional<ConfigOption> option = this.configHolder.getConfigOptions().stream().filter((configOption -> configOption.getTitle() == entry.getKey())).findFirst();
@@ -57,7 +57,7 @@ public class TOMLSerializer implements ConfigSerializer {
             map.put(configGroup.getTitle(), options);
         });
 
-        tomlWriter.write(map, ConfigManager.getFilePath(this.configHolder.getModId(), this.configuration.configSide(), this.getSuffix()));
+        tomlWriter.write(map, ConfigManager.getFilePath(this.configHolder.getFileName(), this.configuration.configSide(), this.getSuffix()));
     }
 
     public static Builder builder(Config configuration) { return new Builder(configuration); }

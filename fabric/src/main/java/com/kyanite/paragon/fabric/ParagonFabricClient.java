@@ -17,23 +17,24 @@ public class ParagonFabricClient implements ClientModInitializer {
     public void onInitializeClient() {
         // Handshake
         ClientPlayNetworking.registerGlobalReceiver(new ResourceLocation(Paragon.MOD_ID, "sync"),  (client, handler, buf, responseSender) -> {
-            String id = buf.readUtf();
+            String modId = buf.readUtf();
+            String fileName = buf.readUtf();
             String rawJson = buf.readUtf();
             String suffix = buf.readUtf();
             client.execute(() -> {
-                Paragon.LOGGER.info("Received config handshake on client for " + id);
+                Paragon.LOGGER.info("Received config handshake on client for " + modId);
 
                 try {
-                    String rawJson2 = ConfigManager.getRawJson(ConfigManager.getFilePath(id, ConfigSide.COMMON, suffix));;
+                    String rawJson2 = ConfigManager.getRawJson(ConfigManager.getFilePath(fileName, ConfigSide.COMMON, suffix));;
                     if(!rawJson.equals(rawJson2)) {
                         responseSender.sendPacket(new ResourceLocation(Paragon.MOD_ID, "handshake"), PacketByteBufs.create().writeEnum(ConfigHandshakeResult.FAIL));
                     }else{
                         responseSender.sendPacket(new ResourceLocation(Paragon.MOD_ID, "handshake"), PacketByteBufs.create().writeEnum(ConfigHandshakeResult.SUCCESS));
                     }
                 } catch (FileNotFoundException e) {
-                    if(ConfigManager.isRegistered(id, ConfigSide.COMMON)) {
-                        ConfigManager.unregister(id, ConfigSide.COMMON);
-                        Paragon.LOGGER.info("Unregistered" + id + " due to the config-file missing");
+                    if(ConfigManager.isRegistered(modId, ConfigSide.COMMON)) {
+                        ConfigManager.unregister(modId, ConfigSide.COMMON);
+                        Paragon.LOGGER.info("Unregistered" + modId + " due to the config-file missing");
                     }
                     responseSender.sendPacket(new ResourceLocation(Paragon.MOD_ID, "handshake"), PacketByteBufs.create().writeEnum(ConfigHandshakeResult.ERROR));
                 } catch (IOException e) {

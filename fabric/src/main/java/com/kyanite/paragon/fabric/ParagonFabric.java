@@ -34,6 +34,7 @@ public class ParagonFabric implements ModInitializer {
                     ServerPlayNetworking.send(handler.player, new ResourceLocation(Paragon.MOD_ID, "sync"),
                             PacketByteBufs.create()
                                     .writeUtf(configHolder.getValue().getModId())
+                                    .writeUtf(configHolder.getValue().getFileName())
                                     .writeUtf(configHolder.getValue().getRaw())
                                     .writeUtf(configHolder.getKey().getSerializer().getSuffix()));
                 } catch (IOException e) {

@@ -15,20 +15,23 @@ import java.util.function.Supplier;
 
 public class SyncPacket {
     public final String modId;
+    public final String fileName;
     public final String rawJson;
     public final String suffix;
-    public SyncPacket(String modId, String rawJson, String suffix) {
+    public SyncPacket(String modId, String fileName, String rawJson, String suffix) {
         this.modId = modId;
+        this.fileName = fileName;
         this.rawJson = rawJson;
         this.suffix = suffix;
     }
 
     public SyncPacket(FriendlyByteBuf buffer) {
-        this(buffer.readUtf(), buffer.readUtf(), buffer.readUtf());
+        this(buffer.readUtf(), buffer.readUtf(), buffer.readUtf(), buffer.readUtf());
     }
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeUtf(this.modId);
+        buffer.writeUtf(this.fileName);
         buffer.writeUtf(this.rawJson);
         buffer.writeUtf(this.suffix);
     }
@@ -39,7 +42,7 @@ public class SyncPacket {
             Paragon.LOGGER.info("Received config handshake on client for " + modId);
 
             try {
-                String rawJson2 = ConfigManager.getRawJson(ConfigManager.getFilePath(modId, ConfigSide.COMMON, suffix));;
+                String rawJson2 = ConfigManager.getRawJson(ConfigManager.getFilePath(fileName, ConfigSide.COMMON, suffix));;
                 if(!rawJson.equals(rawJson2)) {
                     ParagonPacketHandler.sendToServer(new HandshakePacket(ConfigHandshakeResult.FAIL));
                 }else{

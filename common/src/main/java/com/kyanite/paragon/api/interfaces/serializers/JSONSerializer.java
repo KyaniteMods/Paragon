@@ -14,6 +14,12 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @deprecated
+ * This is still perfectly fine to use, and will not cause any actual issues but using JSON5 ({@link JSON5Serializer})
+ * is recommended due to its many advantages, such as comments and other sanitization features.
+ */
+@Deprecated
 public class JSONSerializer implements ConfigSerializer {
     private final Gson gson;
     private final Config configuration;
@@ -31,11 +37,13 @@ public class JSONSerializer implements ConfigSerializer {
 
     private void setOptionsValue(ConfigOption configOption, JsonObject json) throws IOException {
         JsonElement element = json.get(configOption.getTitle());
-        if(element == null || !element.isJsonObject()) {
+        if(element == null) {
+            Paragon.LOGGER.error("Couldn't find " + configOption.getTitle() + " : resetting config");
             save();
             return;
         } else configOption.setValue(gson.fromJson(element, configOption.getValueClass()));
     }
+
     @Override
     public void load() throws IOException {
         BufferedReader reader = Files.newBufferedReader(this.configHolder.getFile().toPath());
@@ -50,6 +58,7 @@ public class JSONSerializer implements ConfigSerializer {
             this.configHolder.getConfigGroups().forEach(configGroup -> {
                 JsonElement element1 = json.get(configGroup.getTitle());
                 if(element1 == null) {
+                    Paragon.LOGGER.error("Couldn't find " + configGroup.getTitle() + " : resetting config");
                     try { save(); } catch (IOException e) {
                         Paragon.LOGGER.error("Unable to load " + configGroup.getTitle() + " because of " + e);
                     }
@@ -57,7 +66,7 @@ public class JSONSerializer implements ConfigSerializer {
                 }
 
                 configGroup.getConfigOptions().forEach(configOption -> {
-                    try { setOptionsValue(configOption, json); } catch (IOException e) {
+                    try { setOptionsValue(configOption, element1.getAsJsonObject()); } catch (IOException e) {
                         Paragon.LOGGER.error("Unable to load " + configOption.getTitle() + " because of " + e);
                     }
                 });

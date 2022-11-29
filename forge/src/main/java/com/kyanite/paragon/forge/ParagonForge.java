@@ -28,7 +28,7 @@ public class ParagonForge {
             ConfigManager.getRegisteredConfigs().entrySet().stream().filter((configHolder -> configHolder.getKey().configSide() == ConfigSide.COMMON)).forEach((configHolder -> {
                 try {
                     Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getValue().getModId() + " to " + event.getEntity().getName().getString());
-                    ParagonPacketHandler.sendToPlayer(new SyncPacket(configHolder.getValue().getModId(), configHolder.getValue().getRaw(), configHolder.getKey().getSerializer().getSuffix()), (ServerPlayer) event.getEntity());
+                    ParagonPacketHandler.sendToPlayer(new SyncPacket(configHolder.getValue().getModId(), configHolder.getValue().getFileName(), configHolder.getValue().getRaw(), configHolder.getKey().getSerializer().getSuffix()), (ServerPlayer) event.getEntity());
                 } catch (IOException e) {
                     ConfigManager.unregister(configHolder.getValue().getModId(), ConfigSide.COMMON);
                     Paragon.LOGGER.info("Unregistered" + configHolder.getValue().getModId() + " due to the config-file missing");
