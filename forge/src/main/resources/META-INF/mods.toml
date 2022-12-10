@@ -17,6 +17,6 @@ Lightweight and easy-to-use config library
 [[dependencies.paragon]]
 modId = "forge"
 mandatory = true
-versionRange = "[41.0.94,)"
+versionRange = "[40.1.86,)"
 ordering = "NONE"
 side = "BOTH"

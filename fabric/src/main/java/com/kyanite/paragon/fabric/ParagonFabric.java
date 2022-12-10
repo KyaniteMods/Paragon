@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -57,12 +57,12 @@ public class ParagonFabric implements ModInitializer {
 
                     case FAIL -> {
                         Paragon.LOGGER.info("Handshake failed due to config mismatch");
-                        player.connection.disconnect(Component.literal("Config is mismatched between server and client!"));
+                        player.connection.disconnect(new TextComponent("Config is mismatched between server and client!"));
                     }
 
                     case ERROR -> {
                         Paragon.LOGGER.info("Handshake failed due to error");
-                        player.connection.disconnect(Component.literal("Unable to complete config handshake"));
+                        player.connection.disconnect(new TextComponent("Unable to complete config handshake"));
                     }
                 }
             });
