@@ -2,6 +2,7 @@ package com.kyanite.paragon.api;
 
 import com.kyanite.paragon.Paragon;
 import com.kyanite.paragon.api.interfaces.Config;
+import com.kyanite.paragon.api.interfaces.Description;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -44,7 +45,7 @@ public class ConfigHolder {
                 if(ConfigOption.class.isAssignableFrom(field.getType())) {
                     try {
                         ConfigOption configOption = (ConfigOption) field.get(null);
-                        if(field.isAnnotationPresent(blue.endless.jankson.Comment.class)) configOption.setDescription(field.getAnnotation(blue.endless.jankson.Comment.class).value());
+                        if(field.isAnnotationPresent(Description.class)) configOption.setDescription(field.getAnnotation(Description.class).value());
                         configOptions.add(configOption);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
@@ -62,7 +63,7 @@ public class ConfigHolder {
                 if(ConfigGroup.class.isAssignableFrom(field.getType())) {
                     try {
                         ConfigGroup configGroup = (ConfigGroup) field.get(null);
-                        if(field.isAnnotationPresent(blue.endless.jankson.Comment.class)) configGroup.setDescription(field.getAnnotation(blue.endless.jankson.Comment.class).value());
+                        if(field.isAnnotationPresent(Description.class)) configGroup.setDescription(field.getAnnotation(Description.class).value());
                         configGroups.add(configGroup);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
