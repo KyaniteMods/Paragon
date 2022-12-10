@@ -1,10 +1,10 @@
 package com.kyanite.paragon.fabric;
 
 import com.kyanite.paragon.Paragon;
-import com.kyanite.paragon.api.ConfigRegistry;
-import com.kyanite.paragon.api.enums.ConfigSide;
-import com.kyanite.paragon.api.interfaces.configtypes.JSONModConfig;
+import com.kyanite.paragon.api.ConfigManager;
 import com.kyanite.paragon.api.enums.ConfigHandshakeResult;
+import com.kyanite.paragon.api.enums.ConfigSide;
+import com.kyanite.paragon.api.interfaces.Config;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -28,17 +28,18 @@ public class ParagonFabric implements ModInitializer {
                 return;
             }
 
-            ConfigRegistry.CONFIGS.stream().filter((configHolder -> configHolder.configSide() == ConfigSide.COMMON)).forEach((configHolder -> {
+            ConfigManager.getRegisteredConfigs().entrySet().stream().filter((configHolder -> configHolder.getKey().configSide() == ConfigSide.COMMON)).forEach((configHolder -> {
                 try {
-                    Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getModId() + " to " + handler.player.getName().getString());
+                    Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getValue().getModId() + " to " + handler.player.getName().getString());
                     ServerPlayNetworking.send(handler.player, new ResourceLocation(Paragon.MOD_ID, "sync"),
                             PacketByteBufs.create()
-                                    .writeUtf(configHolder.getModId())
-                                    .writeUtf(configHolder.getRaw())
-                                    .writeUtf(configHolder.getSuffix()));
+                                    .writeUtf(configHolder.getValue().getModId())
+                                    .writeUtf(configHolder.getValue().getFileName())
+                                    .writeUtf(configHolder.getValue().getRaw())
+                                    .writeUtf(configHolder.getKey().getSerializer().getSuffix()));
                 } catch (IOException e) {
-                    ConfigRegistry.unregister(configHolder.getModId(), configHolder.configSide());
-                    Paragon.LOGGER.info("Unregistered" + configHolder.getModId() + " due to the config-file missing");
+                    ConfigManager.unregister(configHolder.getValue().getModId(), configHolder.getKey().configSide());
+                    Paragon.LOGGER.info("Unregistered" + configHolder.getValue().getModId() + " due to the config-file missing");
                 }
             }));
         });
@@ -69,8 +70,8 @@ public class ParagonFabric implements ModInitializer {
     }
 
     public void search() {
-        FabricLoader.getInstance().getEntrypointContainers("config", JSONModConfig.class).forEach(entrypoint -> {
-            ConfigRegistry.register(entrypoint.getEntrypoint());
+        FabricLoader.getInstance().getEntrypointContainers("config", Config.class).forEach(entrypoint -> {
+            ConfigManager.register(entrypoint.getProvider().getMetadata().getId(), entrypoint.getEntrypoint());
         });
     }
 }

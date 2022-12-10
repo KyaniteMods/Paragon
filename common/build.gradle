@@ -3,6 +3,7 @@ dependencies {
 
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
     implementation 'org.yaml:snakeyaml:1.27'
+    implementation 'blue.endless:jankson:1.2.1'
 }
 
 architectury {

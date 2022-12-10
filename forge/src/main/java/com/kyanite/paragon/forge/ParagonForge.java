@@ -1,7 +1,7 @@
 package com.kyanite.paragon.forge;
 
 import com.kyanite.paragon.Paragon;
-import com.kyanite.paragon.api.ConfigRegistry;
+import com.kyanite.paragon.api.ConfigManager;
 import com.kyanite.paragon.api.enums.ConfigSide;
 import com.kyanite.paragon.forge.packet.SyncPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,13 +25,13 @@ public class ParagonForge {
     public static class ParagonServer {
         @SubscribeEvent
         public static void loginEvent(PlayerEvent.PlayerLoggedInEvent event) {
-            ConfigRegistry.CONFIGS.stream().filter((configHolder -> configHolder.configSide() == ConfigSide.COMMON)).forEach((configHolder -> {
+            ConfigManager.getRegisteredConfigs().entrySet().stream().filter((configHolder -> configHolder.getKey().configSide() == ConfigSide.COMMON)).forEach((configHolder -> {
                 try {
-                    Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getModId() + " to " + event.getEntity().getName().getString());
-                    ParagonPacketHandler.sendToPlayer(new SyncPacket(configHolder.getModId(), configHolder.getRaw(), configHolder.getSuffix()), (ServerPlayer) event.getEntity());
+                    Paragon.LOGGER.info("Server sent config handshake for " + configHolder.getValue().getModId() + " to " + event.getEntity().getName().getString());
+                    ParagonPacketHandler.sendToPlayer(new SyncPacket(configHolder.getValue().getModId(), configHolder.getValue().getFileName(), configHolder.getValue().getRaw(), configHolder.getKey().getSerializer().getSuffix()), (ServerPlayer) event.getEntity());
                 } catch (IOException e) {
-                    ConfigRegistry.unregister(configHolder.getModId(), ConfigSide.COMMON);
-                    Paragon.LOGGER.info("Unregistered" + configHolder.getModId() + " due to the config-file missing");
+                    ConfigManager.unregister(configHolder.getValue().getModId(), ConfigSide.COMMON);
+                    Paragon.LOGGER.info("Unregistered" + configHolder.getValue().getModId() + " due to the config-file missing");
                 }
             }));
         }

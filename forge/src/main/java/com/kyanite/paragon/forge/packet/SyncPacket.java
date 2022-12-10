@@ -1,8 +1,7 @@
 package com.kyanite.paragon.forge.packet;
 
 import com.kyanite.paragon.Paragon;
-import com.kyanite.paragon.api.ConfigRegistry;
-import com.kyanite.paragon.api.ConfigUtils;
+import com.kyanite.paragon.api.ConfigManager;
 import com.kyanite.paragon.api.enums.ConfigHandshakeResult;
 import com.kyanite.paragon.api.enums.ConfigSide;
 import com.kyanite.paragon.forge.ParagonPacketHandler;
@@ -16,20 +15,23 @@ import java.util.function.Supplier;
 
 public class SyncPacket {
     public final String modId;
+    public final String fileName;
     public final String rawJson;
     public final String suffix;
-    public SyncPacket(String modId, String rawJson, String suffix) {
+    public SyncPacket(String modId, String fileName, String rawJson, String suffix) {
         this.modId = modId;
+        this.fileName = fileName;
         this.rawJson = rawJson;
         this.suffix = suffix;
     }
 
     public SyncPacket(FriendlyByteBuf buffer) {
-        this(buffer.readUtf(), buffer.readUtf(), buffer.readUtf());
+        this(buffer.readUtf(), buffer.readUtf(), buffer.readUtf(), buffer.readUtf());
     }
 
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeUtf(this.modId);
+        buffer.writeUtf(this.fileName);
         buffer.writeUtf(this.rawJson);
         buffer.writeUtf(this.suffix);
     }
@@ -40,15 +42,15 @@ public class SyncPacket {
             Paragon.LOGGER.info("Received config handshake on client for " + modId);
 
             try {
-                String rawJson2 = ConfigUtils.getRawJson(ConfigUtils.getFilePath(modId, ConfigSide.COMMON, suffix));;
+                String rawJson2 = ConfigManager.getRawJson(ConfigManager.getFilePath(fileName, ConfigSide.COMMON, suffix));;
                 if(!rawJson.equals(rawJson2)) {
                     ParagonPacketHandler.sendToServer(new HandshakePacket(ConfigHandshakeResult.FAIL));
                 }else{
                     ParagonPacketHandler.sendToServer(new HandshakePacket(ConfigHandshakeResult.SUCCESS));
                 }
             } catch (FileNotFoundException e) {
-                if(ConfigRegistry.isRegistered(modId, ConfigSide.COMMON)) {
-                    ConfigRegistry.unregister(modId, ConfigSide.COMMON);
+                if(ConfigManager.isRegistered(modId, ConfigSide.COMMON)) {
+                    ConfigManager.unregister(modId, ConfigSide.COMMON);
                     Paragon.LOGGER.info("Unregistered" + modId + " due to the config-file missing");
                 }
 
