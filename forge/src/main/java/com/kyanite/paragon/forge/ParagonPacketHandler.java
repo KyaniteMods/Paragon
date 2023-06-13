@@ -27,11 +27,11 @@ public class ParagonPacketHandler {
 
         INSTANCE.messageBuilder(HandshakePacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
                 .encoder(HandshakePacket::encode).decoder(HandshakePacket::new)
-                .consumer(HandshakePacket::handle).add();
+                .consumerMainThread(HandshakePacket::handle).add();
 
         INSTANCE.messageBuilder(SyncPacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(SyncPacket::encode).decoder(SyncPacket::new)
-                .consumer(SyncPacket::handle).add();
+                .consumerMainThread(SyncPacket::handle).add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
